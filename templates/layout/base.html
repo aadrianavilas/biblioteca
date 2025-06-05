@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="bg-white shadow-lg border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-book-open text-indigo-600 text-2xl mr-3"></i>
+                    <h1 class="text-xl font-bold text-gray-800">Biblioteca Digital</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="{% url 'index' %}" class="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Inicio</a>
+                        <a href="{% url 'libro_list_view' %}" class="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Libros</a>
+                        <a href="{% url 'list_autores' %}" class="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Autores</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    {% block content %}
+
+    {% endblock %}
+    <footer class="bg-gray-800 text-white mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="text-center">
+                <p class="text-gray-400">&copy; 2024 Biblioteca Digital. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

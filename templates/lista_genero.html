@@ -1,0 +1,291 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block title %}Géneros Literarios - Biblioteca Digital{% endblock %}
+{% block content %}
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Géneros Literarios</h1>
+            <p class="text-gray-600">Explora nuestra colección organizada por géneros literarios</p>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            
+            <!-- Sidebar -->
+            <div class="lg:w-1/4">
+                {% include 'layout/search.html' %}
+
+                <!-- Popular Genres Card -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-fire mr-2 text-red-500"></i>Géneros Populares
+                    </h3>
+                    <div class="space-y-3">
+                        {% for genero in generos_populares %}
+                        <div class="bg-gradient-to-r from-red-50 to-pink-50 rounded-lg p-3 border border-red-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-semibold text-gray-900 text-sm">{{ genero.nombre }}</h4>
+                                    <p class="text-xs text-gray-600">{{ genero.cantidad_libros }} libro{{ genero.cantidad_libros|pluralize }}</p>
+                                </div>
+                                <div class="bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                                    {{ genero.cantidad_libros }}
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <a href="{{ genero.get_absolute_url }}" class="text-red-600 hover:text-red-800 text-xs font-medium">
+                                    Ver libros <i class="fas fa-arrow-right ml-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-gray-500 text-sm">No hay géneros registrados</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Statistics Card -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-chart-bar mr-2 text-indigo-600"></i>Estadísticas
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-4 text-white">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-purple-100 text-sm">Total de Géneros</p>
+                                    <p class="text-2xl font-bold">{{ total_generos }}</p>
+                                </div>
+                                <i class="fas fa-tags text-2xl text-purple-200"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="lg:w-3/4">
+                <!-- Results Header -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-900">
+                                {% if request.GET.q %}
+                                    Resultados para: "{{ request.GET.q }}"
+                                {% else %}
+                                    Todos los Géneros
+                                {% endif %}
+                            </h2>
+                            <p class="text-gray-600 mt-1">
+                                {{ page_obj.paginator.count }} género{{ page_obj.paginator.count|pluralize }} encontrado{{ page_obj.paginator.count|pluralize }}
+                            </p>
+                        </div>
+                        {% if request.GET.q %}
+                        <a href="?" class="text-indigo-600 hover:text-indigo-800 font-medium">
+                            <i class="fas fa-times mr-1"></i>Limpiar búsqueda
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Genres Grid -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900">
+                            Explorar por Género
+                        </h2>
+                        <p class="text-gray-600 text-sm">Ordenados alfabéticamente</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {% for genero in object_list %}
+                        <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-200 hover:border-indigo-300">
+                            <!-- Genre Icon -->
+                            <div class="text-center mb-4">
+                                <div class="bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-bookmark text-white text-2xl"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900">{{ genero.nombre }}</h3>
+                            </div>
+
+                            <!-- Genre Info -->
+                            <div class="space-y-3 mb-4">
+                                <div class="flex items-center justify-center text-sm text-gray-600">
+                                    <i class="fas fa-book mr-2 text-green-500"></i>
+                                    <span>{{ genero.libros.count }} libro{{ genero.libros.count|pluralize }} disponible{{ genero.libros.count|pluralize }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Description Preview -->
+                            {% if genero.descripcion %}
+                            <div class="mb-4">
+                                <p class="text-sm text-gray-700 line-clamp-3">{{ genero.descripcion|truncatewords:15 }}</p>
+                            </div>
+                            {% endif %}
+
+                            <!-- Popularity Badge -->
+                            <div class="flex items-center justify-center mb-4">
+                                {% if genero.libros.count >= 10 %}
+                                    <span class="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">
+                                        <i class="fas fa-star mr-1"></i>Popular
+                                    </span>
+                                {% elif genero.libros.count >= 5 %}
+                                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full">
+                                        <i class="fas fa-thumbs-up mr-1"></i>En Crecimiento
+                                    </span>
+                                {% else %}
+                                    <span class="bg-gray-100 text-gray-800 text-xs font-semibold px-3 py-1 rounded-full">
+                                        <i class="fas fa-seedling mr-1"></i>Emergente
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Recent Books Preview -->
+                            {% if genero.libros.all %}
+                            <div class="mb-4">
+                                <h4 class="text-sm font-medium text-gray-900 mb-2">Libros destacados:</h4>
+                                <div class="space-y-1">
+                                    {% for libro in genero.libros.all|slice:":2" %}
+                                    <div class="flex items-center text-xs text-gray-600">
+                                        <i class="fas fa-book-open mr-2 text-gray-400"></i>
+                                        <span class="truncate">{{ libro.titulo }}</span>
+                                    </div>
+                                    {% endfor %}
+                                    {% if genero.libros.count > 2 %}
+                                    <div class="text-xs text-gray-500 italic ml-4">
+                                        y {{ genero.libros.count|add:"-2" }} más...
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Books Count Display -->
+                            <div class="text-center mb-4">
+                                <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
+                                    <p class="text-2xl font-bold text-indigo-600">{{ genero.libros.count }}</p>
+                                    <p class="text-xs text-gray-600">libro{{ genero.libros.count|pluralize }}</p>
+                                </div>
+                            </div>
+
+                            <!-- Action Button -->
+                            <div class="pt-4 border-t border-gray-200">
+                                <a href="{{ genero.get_absolute_url }}" class="w-full bg-indigo-600 text-white text-center py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors duration-200 text-sm font-medium block">
+                                    <i class="fas fa-eye mr-1"></i>Explorar Género
+                                </a>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-span-full bg-white rounded-lg shadow-md p-12 text-center">
+                            <i class="fas fa-tags text-gray-400 text-6xl mb-4"></i>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">No hay géneros registrados</h3>
+                            <p class="text-gray-600 mb-4">Aún no se han registrado géneros literarios en la biblioteca</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+                    <nav class="flex items-center justify-between">
+                        <div class="flex-1 flex justify-between sm:hidden">
+                            {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}" 
+                               class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                Anterior
+                            </a>
+                            {% endif %}
+                            {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}" 
+                               class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                Siguiente
+                            </a>
+                            {% endif %}
+                        </div>
+                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-sm text-gray-700">
+                                    Mostrando
+                                    <span class="font-medium">{{ page_obj.start_index }}</span>
+                                    a
+                                    <span class="font-medium">{{ page_obj.end_index }}</span>
+                                    de
+                                    <span class="font-medium">{{ page_obj.paginator.count }}</span>
+                                    géneros
+                                </p>
+                            </div>
+                            <div>
+                                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                                    {% if page_obj.has_previous %}
+                                    <a href="?page={{ page_obj.previous_page_number }}" 
+                                       class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                    {% endif %}
+                                    
+                                    {% for num in page_obj.paginator.page_range %}
+                                        {% if page_obj.number == num %}
+                                        <span class="bg-indigo-50 border-indigo-500 text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                            {{ num }}
+                                        </span>
+                                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                        <a href="?page={{ num }}" 
+                                           class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                            {{ num }}
+                                        </a>
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% if page_obj.has_next %}
+                                    <a href="?page={{ page_obj.next_page_number }}" 
+                                       class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                    {% endif %}
+                                </nav>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Stats Section -->
+        <div class="mt-12 bg-white rounded-lg shadow-lg p-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">
+                <i class="fas fa-chart-pie mr-3 text-indigo-600"></i>Análisis de Géneros
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                    <i class="fas fa-crown text-4xl text-blue-600 mb-4"></i>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Más Popular</h3>
+                    {% if generos_populares %}
+                    <p class="text-blue-600 font-bold">{{ generos_populares.0.nombre }}</p>
+                    <p class="text-sm text-gray-600">{{ generos_populares.0.cantidad_libros }} libros</p>
+                    {% else %}
+                    <p class="text-gray-500">Sin datos</p>
+                    {% endif %}
+                </div>
+                
+                <div class="text-center p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                    <i class="fas fa-tags text-4xl text-green-600 mb-4"></i>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Total Géneros</h3>
+                    <p class="text-green-600 font-bold text-2xl">{{ page_obj.paginator.count }}</p>
+                    <p class="text-sm text-gray-600">categorías disponibles</p>
+                </div>
+                
+                <div class="text-center p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+                    <i class="fas fa-book-reader text-4xl text-purple-600 mb-4"></i>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Diversidad</h3>
+                    <p class="text-purple-600 font-bold text-2xl">100%</p>
+                    <p class="text-sm text-gray-600">cobertura literaria</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

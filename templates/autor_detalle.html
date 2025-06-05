@@ -1,0 +1,248 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block title %}{{ object.nombre }} {{ object.apellido }} - Detalle del Autor{% endblock %}
+{% block  content %}
+    
+        <div class="flex flex-col lg:flex-row gap-8">
+            
+            <!-- Sidebar -->
+            <div class="lg:w-1/3">
+                <!-- Author Profile Card -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <div class="text-center mb-6">
+                        <div class="bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full w-32 h-32 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-user text-white text-4xl"></i>
+                        </div>
+                        <h1 class="text-2xl font-bold text-gray-900 mb-2">
+                            {{ object.nombre }} {{ object.apellido }}
+                        </h1>
+                        <p class="text-gray-600">Autor</p>
+                    </div>
+
+                    <!-- Author Stats -->
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-4 text-white mb-6">
+                        <div class="text-center">
+                            <p class="text-blue-100 text-sm">Obras Publicadas</p>
+                            <p class="text-3xl font-bold">{{ object.libros.count }}</p>
+                            <p class="text-blue-100 text-xs">libro{{ object.libros.count|pluralize }} en nuestra colección</p>
+                        </div>
+                    </div>
+
+                    <!-- Author Info -->
+                    <div class="space-y-4">
+                        {% if object.fecha_nacimiento %}
+                        <div class="flex items-center text-gray-700">
+                            <div class="bg-green-100 rounded-full p-2 mr-3">
+                                <i class="fas fa-birthday-cake text-green-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Fecha de Nacimiento</p>
+                                <p class="font-medium">{{ object.fecha_nacimiento|date:"d/m/Y" }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if object.fecha_fallecimiento %}
+                        <div class="flex items-center text-gray-700">
+                            <div class="bg-gray-100 rounded-full p-2 mr-3">
+                                <i class="fas fa-cross text-gray-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Fecha de Fallecimiento</p>
+                                <p class="font-medium">{{ object.fecha_fallecimiento|date:"d/m/Y" }}</p>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="flex items-center text-gray-700">
+                            <div class="bg-green-100 rounded-full p-2 mr-3">
+                                <i class="fas fa-heartbeat text-green-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Estado</p>
+                                <p class="font-medium text-green-600">Activo</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <a href="{% url 'list_autores' %}" 
+                           class="w-full bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors duration-200 flex items-center justify-center">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Volver a Autores
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Available Books Summary -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-chart-pie mr-2 text-indigo-600"></i>Disponibilidad
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg border border-green-200">
+                            <div class="flex items-center">
+                                <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                                <span class="text-sm font-medium text-gray-700">Disponibles</span>
+                            </div>
+                            <span class="bg-green-600 text-white text-sm font-bold px-2 py-1 rounded-full">
+                                {{ ejemplares_disponibles.count }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+                            <div class="flex items-center">
+                                <i class="fas fa-books text-blue-600 mr-2"></i>
+                                <span class="text-sm font-medium text-gray-700">Total de Obras</span>
+                            </div>
+                            <span class="bg-blue-600 text-white text-sm font-bold px-2 py-1 rounded-full">
+                                {{ object.libros.count }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="lg:w-2/3">
+                <!-- Biography Section -->
+                {% if object.biografia %}
+                <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-user-edit mr-2 text-indigo-600"></i>Biografía
+                    </h2>
+                    <div class="prose max-w-none">
+                        <p class="text-gray-700 leading-relaxed">{{ object.biografia }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Books Section -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900">
+                            <i class="fas fa-book mr-2 text-indigo-600"></i>Obras del Autor
+                        </h2>
+                        <p class="text-gray-600 text-sm">{{ object.libros.count }} libro{{ object.libros.count|pluralize }} registrado{{ object.libros.count|pluralize }}</p>
+                    </div>
+
+                    {% if cant_ejemplares %}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {% for libro in cant_ejemplares %}
+                            <div class="bg-gray-50 rounded-lg p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-200">
+                                <!-- Book Header -->
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex-1">
+                                        <h3 class="text-lg font-semibold text-gray-900 mb-2 leading-tight">
+                                            <a href="{{ libro.get_absolute_url }}" class="hover:text-indigo-600 transition-colors">
+                                                {{ libro.titulo }}
+                                            </a>
+                                        </h3>
+                                    </div>
+                                    <!-- Availability Badge -->
+                                    {% if libro in ejemplares_disponibles %}
+                                    <span class="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full flex items-center">
+                                        <i class="fas fa-check-circle mr-1"></i>Disponible
+                                    </span>
+                                    {% else %}
+                                    <span class="bg-red-100 text-red-800 text-xs font-semibold px-2 py-1 rounded-full flex items-center">
+                                        <i class="fas fa-times-circle mr-1"></i>No disponible
+                                    </span>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Book Details -->
+                                <div class="space-y-2 mb-4">
+                                    <div class="flex items-center text-sm text-gray-600">
+                                        <i class="fas fa-barcode mr-2 text-indigo-500 w-4"></i>
+                                        <span class="font-medium">ISBN:</span>
+                                        <span class="ml-1">{{ libro.isbn }}</span>
+                                    </div>
+                                    <div class="flex items-center text-sm text-gray-600">
+                                        <i class="fas fa-language mr-2 text-green-500 w-4"></i>
+                                        <span class="font-medium">Idioma:</span>
+                                        <span class="ml-1">{{ libro.idioma }}</span>
+                                    </div>
+                                    <div class="flex items-center text-sm text-gray-600">
+                                        <i class="fas fa-copy mr-2 text-blue-500 w-4"></i>
+                                        <span class="font-medium">Ejemplares:</span>
+                                        <span class="ml-1">{{ libro.cantidad }} unidad{{ libro.cantidad|pluralize:"es" }}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Genres -->
+                                {% if libro.genero.all %}
+                                <div class="mb-4">
+                                    <div class="flex flex-wrap gap-1">
+                                        {% for genero in libro.genero.all %}
+                                        <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2 py-1 rounded-full">
+                                            {{ genero.nombre }}
+                                        </span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                <!-- Book Summary -->
+                                {% if libro.resumen %}
+                                <div class="mb-4">
+                                    <p class="text-sm text-gray-700 leading-relaxed">
+                                        {{ libro.resumen|truncatewords:25 }}
+                                    </p>
+                                </div>
+                                {% endif %}
+
+                                <!-- Action Buttons -->
+                                <div class="pt-4 border-t border-gray-200">
+                                    <div class="flex space-x-2">
+                                        <a href="{{ libro.get_absolute_url }}" 
+                                           class="flex-1 bg-indigo-600 text-white text-center py-2 px-3 rounded-md hover:bg-indigo-700 transition-colors duration-200 text-sm">
+                                            <i class="fas fa-eye mr-1"></i>Ver Detalles
+                                        </a>
+                                        {% if libro in ejemplares_disponibles %}
+                                        <a href="#" 
+                                           class="flex-1 bg-green-600 text-white text-center py-2 px-3 rounded-md hover:bg-green-700 transition-colors duration-200 text-sm">
+                                            <i class="fas fa-bookmark mr-1"></i>Reservar
+                                        </a>
+                                        {% else %}
+                                        <span class="flex-1 bg-gray-400 text-white text-center py-2 px-3 rounded-md text-sm cursor-not-allowed">
+                                            <i class="fas fa-ban mr-1"></i>No disponible
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-12">
+                            <i class="fas fa-book-open text-gray-400 text-6xl mb-4"></i>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Sin obras registradas</h3>
+                            <p class="text-gray-600">Este autor aún no tiene libros asociados en nuestra biblioteca.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Authors Section -->
+        <div class="mt-12 bg-white rounded-lg shadow-lg p-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">
+                <i class="fas fa-users mr-3 text-indigo-600"></i>Otros Autores Destacados
+            </h2>
+            <div class="text-center">
+                <p class="text-gray-600 mb-6">Descubre más autores en nuestra colección</p>
+                <a href="{% url 'list_autores' %}" 
+                   class="inline-flex items-center px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors duration-200">
+                    <i class="fas fa-search mr-2"></i>
+                    Explorar Todos los Autores
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    
+
+{% endblock %}

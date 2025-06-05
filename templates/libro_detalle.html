@@ -1,0 +1,240 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block title %}{{ libro.titulo }} - Biblioteca Digital{% endblock %}
+    
+{% block content %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Breadcrumb -->
+        <nav class="flex mb-8" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a href="{% url 'index' %}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-indigo-600">
+                        <i class="fas fa-home mr-2"></i>Inicio
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                        <a href="{% url 'libro_list_view' %}" class="text-sm font-medium text-gray-700 hover:text-indigo-600">Libros</a>
+                    </div>
+                </li>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                        <span class="text-sm font-medium text-gray-500">{{ libro.titulo|truncatechars:30 }}</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Book Details - Main Column -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <!-- Book Header -->
+                    <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-8 text-white">
+                        <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
+                            <!-- Book Cover -->
+                            <div class="flex-shrink-0">
+                                <div class="bg-white bg-opacity-20 rounded-lg p-8 w-32 h-48 flex items-center justify-center">
+                                    <i class="fas fa-book text-6xl text-white opacity-80"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Book Info -->
+                            <div class="flex-1">
+                                <h1 class="text-3xl font-bold mb-3">{{ libro.titulo }}</h1>
+                                <div class="space-y-2 text-lg">
+                                    {% if libro.autor %}
+                                    <p class="flex items-center">
+                                        <i class="fas fa-user mr-3"></i>
+                                        <span>{{ libro.autor.nombre }} {{ libro.autor.apellido }}</span>
+                                    </p>
+                                    {% endif %}
+                                    <p class="flex items-center">
+                                        <i class="fas fa-barcode mr-3"></i>
+                                        <span>ISBN: {{ libro.isbn }}</span>
+                                    </p>
+                                    <p class="flex items-center">
+                                        <i class="fas fa-language mr-3"></i>
+                                        <span>{{ libro.idioma }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Book Content -->
+                    <div class="p-8">
+                        <!-- Genres -->
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-3">
+                                <i class="fas fa-tags mr-2 text-indigo-600"></i>Géneros
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                {% for genero in libro.genero.all %}
+                                <span class="bg-indigo-100 text-indigo-800 text-sm font-medium px-3 py-1 rounded-full">
+                                    {{ genero.nombre }}
+                                </span>
+                                {% empty %}
+                                <span class="bg-gray-100 text-gray-800 text-sm font-medium px-3 py-1 rounded-full">
+                                    Sin género especificado
+                                </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-3">
+                                <i class="fas fa-align-left mr-2 text-indigo-600"></i>Resumen
+                            </h3>
+                            <div class="prose max-w-none">
+                                <p class="text-gray-700 leading-relaxed">{{ libro.resumen }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Author Info -->
+                        {% if libro.autor %}
+                        <div class="border-t pt-8">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                                <i class="fas fa-user-circle mr-2 text-indigo-600"></i>Sobre el Autor
+                            </h3>
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h4 class="font-semibold text-gray-900 mb-2">{{ libro.autor.nombre }} {{ libro.autor.apellido }}</h4>
+                                <div class="text-sm text-gray-600 mb-3 space-y-1">
+                                    {% if libro.autor.fecha_nacimiento %}
+                                    <p><i class="fas fa-birthday-cake mr-2"></i>Nacimiento: {{ libro.autor.fecha_nacimiento|date:"d/m/Y" }}</p>
+                                    {% endif %}
+                                    {% if libro.autor.fecha_fallecimiento %}
+                                    <p><i class="fas fa-cross mr-2"></i>Fallecimiento: {{ libro.autor.fecha_fallecimiento|date:"d/m/Y" }}</p>
+                                    {% endif %}
+                                </div>
+                                {% if libro.autor.biografia %}
+                                <p class="text-gray-700">{{ libro.autor.biografia|truncatewords:50 }}</p>
+                                <a href="" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium mt-2 inline-block">
+                                    Ver más sobre el autor <i class="fas fa-arrow-right ml-1"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Availability Card -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-clipboard-check mr-2 text-green-600"></i>Disponibilidad
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                            <span class="text-gray-700">Ejemplares disponibles</span>
+                            <span class="bg-green-100 text-green-800 text-lg font-bold px-3 py-1 rounded-full">
+                                {{ ejemplares_disponibles }}
+                            </span>
+                        </div>
+                        
+                        {% if ejemplares_disponibles > 0 %}
+                        <button class="w-full bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 transition-colors duration-200 font-medium">
+                            <i class="fas fa-book-reader mr-2"></i>Solicitar Préstamo
+                        </button>
+                        {% else %}
+                        <button class="w-full bg-gray-400 text-white py-3 px-4 rounded-md cursor-not-allowed font-medium" disabled>
+                            <i class="fas fa-times-circle mr-2"></i>No Disponible
+                        </button>
+                        {% endif %}
+                        
+                        <button class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors duration-200">
+                            <i class="fas fa-bookmark mr-2"></i>Reservar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Book Status -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-info-circle mr-2 text-blue-600"></i>Estado de Ejemplares
+                    </h3>
+                    <div class="space-y-3">
+                        {% for ejemplar in libro.ejemplares.all %}
+                        <div class="flex items-center justify-between p-3 border rounded-md">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ ejemplar.id|truncatechars:8 }}</p>
+                                {% if ejemplar.fecha_adquisicion %}
+                                <p class="text-xs text-gray-500">Adquirido: {{ ejemplar.fecha_adquisicion|date:"d/m/Y" }}</p>
+                                {% endif %}
+                            </div>
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full
+                                {% if ejemplar.estado == 'd' %}bg-green-100 text-green-800
+                                {% elif ejemplar.estado == 'p' %}bg-red-100 text-red-800
+                                {% elif ejemplar.estado == 'r' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {% if ejemplar.estado == 'd' %}Disponible
+                                {% elif ejemplar.estado == 'p' %}Prestado
+                                {% elif ejemplar.estado == 'r' %}Reservado
+                                {% elif ejemplar.estado == 'm' %}Mantenimiento
+                                {% else %}{{ ejemplar.get_estado_display }}{% endif %}
+                            </span>
+                        </div>
+                        {% empty %}
+                        <p class="text-gray-500 text-center py-4">No hay ejemplares registrados</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-bolt mr-2 text-yellow-600"></i>Acciones Rápidas
+                    </h3>
+                    <div class="space-y-3">
+                        <button class="w-full text-left p-3 rounded-md hover:bg-gray-50 transition-colors duration-200 border">
+                            <i class="fas fa-heart mr-3 text-red-500"></i>Agregar a favoritos
+                        </button>
+                        <button class="w-full text-left p-3 rounded-md hover:bg-gray-50 transition-colors duration-200 border">
+                            <i class="fas fa-share mr-3 text-blue-500"></i>Compartir libro
+                        </button>
+                        <button class="w-full text-left p-3 rounded-md hover:bg-gray-50 transition-colors duration-200 border">
+                            <i class="fas fa-flag mr-3 text-orange-500"></i>Reportar problema
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Books -->
+        {% if libros_relacionados %}
+        <div class="mt-12">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-books mr-3 text-indigo-600"></i>Libros Relacionados
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                    {% for libro_relacionado in libros_relacionados %}
+                    <div class="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow duration-300">
+                        <div class="bg-gradient-to-br from-indigo-400 to-purple-500 h-32 rounded-md flex items-center justify-center mb-3">
+                            <i class="fas fa-book text-white text-2xl"></i>
+                        </div>
+                        <h4 class="font-semibold text-gray-900 text-sm mb-1 line-clamp-2">{{ libro_relacionado.titulo }}</h4>
+                        <p class="text-xs text-gray-600 mb-3">
+                            {% if libro_relacionado.autor %}{{ libro_relacionado.autor.apellido }}{% endif %}
+                        </p>
+                        <a href="" class="text-indigo-600 hover:text-indigo-800 text-xs font-medium">
+                            Ver detalles <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+   
+{% endblock %}

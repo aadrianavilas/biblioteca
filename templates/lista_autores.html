@@ -1,0 +1,306 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block title %}Autores - Biblioteca Digital{% endblock %}
+{% block content %}
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Nuestros Autores</h1>
+            <p class="text-gray-600">Descubre los escritores que forman parte de nuestra colección</p>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            
+            <!-- Sidebar -->
+            <div class="lg:w-1/4">
+                {% include 'layout/search.html' %}
+
+                <!-- Statistics Card -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-chart-bar mr-2 text-indigo-600"></i>Estadísticas
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-4 text-white">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-blue-100 text-sm">Total de Autores</p>
+                                    <p class="text-2xl font-bold">{{ total_autores }}</p>
+                                </div>
+                                <i class="fas fa-users text-2xl text-blue-200"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Featured Author -->
+                {% if autor_mas_libros %}
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-crown mr-2 text-yellow-500"></i>Autor Destacado
+                    </h3>
+                    <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg p-4 border border-yellow-200">
+                        <div class="text-center mb-4">
+                            <div class="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-user text-white text-2xl"></i>
+                            </div>
+                            <h4 class="font-bold text-gray-900">{{ autor_mas_libros.nombre }} {{ autor_mas_libros.apellido }}</h4>
+                            <p class="text-sm text-gray-600 mt-1">Autor más prolífico</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="bg-white rounded-lg p-3 shadow-sm">
+                                <p class="text-2xl font-bold text-orange-600">{{ autor_mas_libros.cant }}</p>
+                                <p class="text-xs text-gray-600">libro{{ autor_mas_libros.cant|pluralize }} publicado{{ autor_mas_libros.cant|pluralize }}</p>
+                            </div>
+                        </div>
+                        {% if autor_mas_libros.biografia %}
+                        <div class="mt-4">
+                            <p class="text-sm text-gray-700">{{ autor_mas_libros.biografia|truncatewords:15 }}</p>
+                        </div>
+                        {% endif %}
+                        <div class="mt-4 text-center">
+                            <a href="{{ autor_mas_libros.get_absolute_url }}" class="text-orange-600 hover:text-orange-800 text-sm font-medium">
+                                Ver perfil completo <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Main Content -->
+            <div class="lg:w-3/4">
+                <!-- Results Header -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-900">
+                                {% if request.GET.q %}
+                                    Resultados para: "{{ request.GET.q }}"
+                                {% else %}
+                                    Todos los Autores
+                                {% endif %}
+                            </h2>
+                            <p class="text-gray-600 mt-1">
+                                {{ page_obj.paginator.count }} autor{{ page_obj.paginator.count|pluralize:"es" }} encontrado{{ page_obj.paginator.count|pluralize }}
+                            </p>
+                        </div>
+                        {% if request.GET.q %}
+                        <a href="?" class="text-indigo-600 hover:text-indigo-800 font-medium">
+                            <i class="fas fa-times mr-1"></i>Limpiar búsqueda
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Authors Grid -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900">
+                            Todos los Autores
+                        </h2>
+                        <p class="text-gray-600 text-sm">Ordenados por número de publicaciones</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {% for autor in object_list %}
+                        <div class="bg-gray-50 rounded-lg p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-200">
+                            <!-- Author Avatar -->
+                            <div class="text-center mb-4">
+                                <div class="bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-user text-white text-2xl"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900">{{ autor.nombre }} {{ autor.apellido }}</h3>
+                            </div>
+
+                            <!-- Author Info -->
+                            <div class="space-y-3 mb-4">
+                                {% if autor.fecha_nacimiento %}
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <i class="fas fa-birthday-cake mr-2 text-indigo-500"></i>
+                                    <span>{{ autor.fecha_nacimiento|date:"d/m/Y" }}</span>
+                                </div>
+                                {% endif %}
+
+                                {% if autor.fecha_fallecimiento %}
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <i class="fas fa-cross mr-2 text-gray-500"></i>
+                                    <span>{{ autor.fecha_fallecimiento|date:"d/m/Y" }}</span>
+                                </div>
+                                {% endif %}
+
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <i class="fas fa-book mr-2 text-green-500"></i>
+                                    <span>{{ autor.cant_libros }} libro{{ autor.cant_libros|pluralize }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Biography Preview -->
+                            {% if autor.biografia %}
+                            <div class="mb-4">
+                                <p class="text-sm text-gray-700 line-clamp-3">{{ autor.biografia|truncatewords:20 }}</p>
+                            </div>
+                            {% endif %}
+
+                            <!-- Books Count Badge -->
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="bg-indigo-100 text-indigo-800 text-xs font-semibold px-3 py-1 rounded-full">
+                                    {% if autor.cant_libros > 5 %}
+                                        <i class="fas fa-star mr-1"></i>Prolífico
+                                    {% elif autor.cant_libros > 2 %}
+                                        <i class="fas fa-fire mr-1"></i>Activo
+                                    {% else %}
+                                        <i class="fas fa-seedling mr-1"></i>Emergente
+                                    {% endif %}
+                                </span>
+                                <span class="bg-green-100 text-green-800 text-sm font-bold px-2 py-1 rounded-full">
+                                    {{ autor.cant_libros }}
+                                </span>
+                            </div>
+
+                            <!-- Recent Books -->
+                            {% if autor.libros.all %}
+                            <div class="mb-4">
+                                <h4 class="text-sm font-medium text-gray-900 mb-2">Obras recientes:</h4>
+                                <div class="space-y-1">
+                                    {% for libro in autor.libros.all|slice:":3" %}
+                                    <div class="flex items-center text-xs text-gray-600">
+                                        <i class="fas fa-book-open mr-2 text-gray-400"></i>
+                                        <span class="truncate">{{ libro.titulo }}</span>
+                                    </div>
+                                    {% endfor %}
+                                    {% if autor.cant_libros > 3 %}
+                                    <div class="text-xs text-gray-500 italic ml-4">
+                                        y {{ autor.cant_libros|add:"-3" }} más...
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Action Buttons -->
+                            <div class="pt-4 border-t border-gray-200">
+                                <div class="flex space-x-2">
+                                    <a href="{{ autor.get_absolute_url }}" class="flex-1 bg-indigo-600 text-white text-center py-2 px-3 rounded-md hover:bg-indigo-700 transition-colors duration-200 text-sm">
+                                        <i class="fas fa-user mr-1"></i>Ver Perfil
+                                    </a>
+                                   
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-span-full bg-white rounded-lg shadow-md p-12 text-center">
+                            <i class="fas fa-user-slash text-gray-400 text-6xl mb-4"></i>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">No hay autores registrados</h3>
+                            <p class="text-gray-600 mb-4">Aún no se han registrado autores en la biblioteca</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+                    <nav class="flex items-center justify-between">
+                        <div class="flex-1 flex justify-between sm:hidden">
+                            {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}" 
+                               class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                Anterior
+                            </a>
+                            {% endif %}
+                            {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}" 
+                               class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                Siguiente
+                            </a>
+                            {% endif %}
+                        </div>
+                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-sm text-gray-700">
+                                    Mostrando
+                                    <span class="font-medium">{{ page_obj.start_index }}</span>
+                                    a
+                                    <span class="font-medium">{{ page_obj.end_index }}</span>
+                                    de
+                                    <span class="font-medium">{{ page_obj.paginator.count }}</span>
+                                    autores
+                                </p>
+                            </div>
+                            <div>
+                                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                                    {% if page_obj.has_previous %}
+                                    <a href="?page={{ page_obj.previous_page_number }}" 
+                                       class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                    {% endif %}
+                                    
+                                    {% for num in page_obj.paginator.page_range %}
+                                        {% if page_obj.number == num %}
+                                        <span class="bg-indigo-50 border-indigo-500 text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                            {{ num }}
+                                        </span>
+                                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                        <a href="?page={{ num }}" 
+                                           class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                            {{ num }}
+                                        </a>
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% if page_obj.has_next %}
+                                    <a href="?page={{ page_obj.next_page_number }}" 
+                                       class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                    {% endif %}
+                                </nav>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Stats Section -->
+        <div class="mt-12 bg-white rounded-lg shadow-lg p-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">
+                <i class="fas fa-chart-pie mr-3 text-indigo-600"></i>Análisis de Autores
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                    <i class="fas fa-trophy text-4xl text-blue-600 mb-4"></i>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Más Prolífico</h3>
+                    {% if autor_mas_libros %}
+                    <p class="text-blue-600 font-bold">{{ autor_mas_libros.apellido }}</p>
+                    <p class="text-sm text-gray-600">{{ autor_mas_libros.cant }} publicaciones</p>
+                    {% else %}
+                    <p class="text-gray-500">Sin datos</p>
+                    {% endif %}
+                </div>
+                
+                <div class="text-center p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                    <i class="fas fa-users text-4xl text-green-600 mb-4"></i>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Total Registrados</h3>
+                    <p class="text-green-600 font-bold text-2xl">{{ total_autores }}</p>
+                    <p class="text-sm text-gray-600">autores únicos</p>
+                </div>
+                
+                <div class="text-center p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+                    <i class="fas fa-book-reader text-4xl text-purple-600 mb-4"></i>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Diversidad</h3>
+                    <p class="text-purple-600 font-bold text-2xl">
+                        {% widthratio total_autores 1 1 %}+
+                    </p>
+                    <p class="text-sm text-gray-600">estilos literarios</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
