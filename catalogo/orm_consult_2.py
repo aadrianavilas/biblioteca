@@ -1,5 +1,6 @@
-from catalogo.models import Autor, Libro
+from catalogo.models import Autor, Genero, Libro
 from django.db.models import Count, Sum, Avg, Min, Max, F, Q
+from django.db.models import Subquery, OuterRef, Count
 
 #Consultas Básicas
 #Filtros Simples
@@ -274,3 +275,40 @@ SELECT "catalogo_libro"."id",
  ORDER BY "catalogo_libro"."titulo" ASC
  LIMIT 21
 """
+
+#Subconsultas con Subquery y OuterRef
+
+# Obtener el último libro de cada autor
+ultimo_libro = Libro.objects.filter(
+autor=OuterRef('pk')
+).order_by('-publicado').values('titulo')[:1]
+autores = Autor.objects.annotate(
+ultimo_libro=Subquery(ultimo_libro)
+)
+# Contar libros por categoría
+categoria_count = Libro.objects.filter(
+categorias=OuterRef('pk')
+).values('categorias').annotate(c=Count('*')).values('c')
+categorias = Genero.objects.annotate(
+num_libros=Subquery(categoria_count)
+)
+
+"""
+SQL:
+SELECT myapp_autor.*,
+(SELECT titulo
+FROM myapp_libro
+WHERE myapp_libro.autor_id = myapp_autor.id
+ORDER BY publicado DESC
+LIMIT 1) AS ultimo_libro
+FROM myapp_autor;
+
+
+SELECT myapp_categoria.*,
+(SELECT COUNT(*)
+FROM myapp_libro_categorias
+WHERE myapp_libro_categorias.categoria_id = myapp_categoria.id) AS num_libros
+FROM myapp_categoria;
+"""
+
+#
