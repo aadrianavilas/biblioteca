@@ -312,3 +312,28 @@ FROM myapp_categoria;
 """
 
 #
+from django.db.models import Window, F
+from django.db.models.functions import RowNumber, Rank, DenseRank
+# Clasificar libros por fecha de publicación dentro de cada autor
+libros = Libro.objects.annotate(
+rank=Window(
+expression=Rank(),
+partition_by=F('autor'),
+order_by=F('publicado').desc()
+)
+)
+# Obtener solo los libros más recientes de cada autor (rank=1)
+libros_recientes = libros.filter(rank=1)
+
+"""
+SQL
+SELECT myapp_libro.*,
+RANK() OVER (PARTITION BY autor_id ORDER BY publicado DESC) AS rank
+FROM myapp_libro;
+SELECT * FROM (
+SELECT myapp_libro.*,
+RANK() OVER (PARTITION BY autor_id ORDER BY publicado DESC) AS rank
+FROM myapp_libro
+) AS ranked_libros
+WHERE rank = 1;
+"""
